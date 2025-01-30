@@ -4,12 +4,14 @@
 require_once __DIR__ . '/../../database/providers/connection.provider.php';
 require_once __DIR__ . '/../../database/providers/transaction.provider.php';
 require_once __DIR__ . '/../../auth/providers/bcrypt.provider.php';
+require_once __DIR__ . '/../../auth/providers/jwt.service.php';
 
 class AuthService
 {
     private $connectionProvider;
     private $transactionProvider;
     private $bcryptProvider;
+    private $jwtService;
     private $db;
 
     public function __construct()
@@ -17,6 +19,7 @@ class AuthService
         $this->connectionProvider = new ConnectionProvider();
         $this->transactionProvider = new TransactionProvider($this->connectionProvider);
         $this->bcryptProvider = new BcryptProvider();
+        $this->jwtService = new JwtService();
         $this->db = $this->connectionProvider->getConnection();
     }
 
@@ -59,7 +62,49 @@ class AuthService
         }
 
         $this->transactionProvider->commit();
-        $this->connectionProvider->closeConnection();
         return "Auth created successfully";
+    }
+
+    public function validateAuth($email, $password)
+    {
+
+        global $auth;
+        $this->transactionProvider->beginTransaction();
+
+        try {
+            $query = "SELECT * FROM auth WHERE email = ?";
+            $stmt = $this->db->prepare($query);
+            $stmt->bind_param("s", $email);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            if ($result->num_rows > 0) {
+                $auth = $result->fetch_assoc();
+            }
+            $stmt->close();
+        } catch (Exception $error) {
+            $this->transactionProvider->rollBack();
+            die("Error: " . $error->getMessage());
+        }
+
+        if (!$auth) {
+            $this->transactionProvider->rollBack();
+            return "Email not found";
+        }
+
+        $isPasswordValid = $this->bcryptProvider->comparePassword($password, $auth['password']);
+        if (!$isPasswordValid) {
+            $this->transactionProvider->rollBack();
+            return "Invalid password";
+        }
+
+        $token = $this->jwtService->generateJwt($auth);
+        $this->transactionProvider->commit();
+        $this->connectionProvider->closeConnection();
+        return $token;
+    }
+
+    public function __destruct()
+    {
+        $this->connectionProvider->closeConnection();
     }
 }
