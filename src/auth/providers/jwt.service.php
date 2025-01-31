@@ -9,6 +9,10 @@ class JwtService
 {
     public function generateJwt($data)
     {
+        if (!is_array($data) || !isset($data['id']) || !isset($data['email'])) {
+            throw new InvalidArgumentException('Invalid data provided for JWT generation');
+        }
+
         $issuedAt = time();
         $expirationTime = $issuedAt + jwtConfig()->expiration;
 
@@ -17,7 +21,7 @@ class JwtService
             'exp' => $expirationTime,
             'iss' => jwtConfig()->issuer,
             'aud' => jwtConfig()->audience,
-            'userId' => $data['id'],
+            'id' => $data['id'],
             'email' => $data['email'],
         ];
 

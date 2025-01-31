@@ -5,6 +5,8 @@ require_once __DIR__ . '/../../database/providers/connection.provider.php';
 require_once __DIR__ . '/../../database/providers/transaction.provider.php';
 require_once __DIR__ . '/../../auth/providers/bcrypt.provider.php';
 require_once __DIR__ . '/../../auth/providers/jwt.service.php';
+require_once __DIR__ . '/../../auth/repositories/auth.repository.php';
+require_once __DIR__ . '/../../utilis/regex.utilis.php';
 
 class AuthService
 {
@@ -13,6 +15,7 @@ class AuthService
     private $bcryptProvider;
     private $jwtService;
     private $db;
+    private $authRepository;
 
     public function __construct()
     {
@@ -21,85 +24,42 @@ class AuthService
         $this->bcryptProvider = new BcryptProvider();
         $this->jwtService = new JwtService();
         $this->db = $this->connectionProvider->getConnection();
+        $this->authRepository = new AuthRepository($this->db);
     }
 
-    public function createAuth($email, $password)
+    public function register($email, $password)
     {
-        global $existingAuth;
-        $this->transactionProvider->beginTransaction();
+        validateEmail($email);
+        validatePassword($password);
 
-        try {
-            $query = "SELECT * FROM auth WHERE email = ?";
-            $stmt = $this->db->prepare($query);
-            $stmt->bind_param("s", $email);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            if ($result->num_rows > 0) {
-                $existingAuth = true;
-            }
-            $stmt->close();
-        } catch (Exception $error) {
-            $this->transactionProvider->rollBack();
-            die("Error: " . $error->getMessage());
-        }
-
+        $existingAuth = $this->authRepository->findByEmail($email);
         if ($existingAuth) {
-            $this->transactionProvider->rollBack();
-            return "Email already exists";
+            throw new Exception("Email già esistente.");
         }
 
         $hashedPassword = $this->bcryptProvider->hashPassword($password);
+        $authId = $this->authRepository->create($email, $hashedPassword);
 
-        try {
-            $query = "INSERT INTO auth (email, password) VALUES (?, ?)";
-            $stmt = $this->db->prepare($query);
-            $stmt->bind_param("ss", $email, $hashedPassword);
-            $stmt->execute();
-            $stmt->close();
-        } catch (Exception $error) {
-            $this->transactionProvider->rollBack();
-            die("Error: " . $error->getMessage());
-        }
-
-        $this->transactionProvider->commit();
-        return "Auth created successfully";
+        return "Auth created successfully" . $authId;
     }
 
-    public function validateAuth($email, $password)
+    public function login($email, $password)
     {
-
-        global $auth;
-        $this->transactionProvider->beginTransaction();
-
-        try {
-            $query = "SELECT * FROM auth WHERE email = ?";
-            $stmt = $this->db->prepare($query);
-            $stmt->bind_param("s", $email);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            if ($result->num_rows > 0) {
-                $auth = $result->fetch_assoc();
-            }
-            $stmt->close();
-        } catch (Exception $error) {
-            $this->transactionProvider->rollBack();
-            die("Error: " . $error->getMessage());
-        }
-
+        $auth = $this->authRepository->findByEmail($email);
         if (!$auth) {
-            $this->transactionProvider->rollBack();
-            return "Email not found";
+            throw new Exception("Email non trovata.");
         }
 
         $isPasswordValid = $this->bcryptProvider->comparePassword($password, $auth['password']);
         if (!$isPasswordValid) {
-            $this->transactionProvider->rollBack();
-            return "Invalid password";
+            throw new Exception("Password non valida.");
         }
 
-        $token = $this->jwtService->generateJwt($auth);
-        $this->transactionProvider->commit();
-        $this->connectionProvider->closeConnection();
+        $token = $this->jwtService->generateJwt([
+            'id' => $auth['id'],
+            'email' => $auth['email']
+        ]);
+
         return $token;
     }
 
