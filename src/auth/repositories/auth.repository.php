@@ -24,6 +24,21 @@ class AuthRepository
         }
     }
 
+    public function findById($id)
+    {
+        $query = "SELECT * FROM auth WHERE id = ? AND deleted_at IS NULL";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("i", $id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $stmt->close();
+        if ($result->num_rows > 0) {
+            return $result->fetch_assoc();
+        } else {
+            return null;
+        }
+    }
+
     public function create($email, $hashedPassword)
     {
         $query = "INSERT INTO auth (email, password) VALUES (?, ?)";
@@ -40,15 +55,15 @@ class AuthRepository
         return $insertedId;
     }
 
-    public function update($id, $col, $hashedPassword)
+    public function update($id, $col)
     {
         $col = $col == 'password' ? 'password' : 'email';
-        $query = "UPDATE auth SET $col = ?, updated_At = NOW() WHERE id = ? AND password = ?";
+        $query = "UPDATE auth SET $col = ?, updated_At = NOW() WHERE id = ?";
         $stmt = $this->db->prepare($query);
         if ($stmt === false) {
             throw new Exception("Failed to prepare the query: " . $this->db->error);
         }
-        $stmt->bind_param("is", $id, $hashedPassword);
+        $stmt->bind_param("is", $id);
         if (!$stmt->execute()) {
             throw new Exception("Execution failed: " . $stmt->error);
         }
@@ -57,14 +72,14 @@ class AuthRepository
         return $updatedRows;
     }
 
-    public function delete($id, $email, $hashedPassword)
+    public function delete($id)
     {
-        $query = "UPDATE auth SET deleted_at = NOW() WHERE id = ? AND email = ? AND password = ?";
+        $query = "UPDATE auth SET deleted_at = NOW() WHERE id = ?";
         $stmt = $this->db->prepare($query);
         if ($stmt === false) {
             throw new Exception("Failed to prepare the query: " . $this->db->error);
         }
-        $stmt->bind_param("iss", $id, $email, $hashedPassword);
+        $stmt->bind_param("i", $id);
         if (!$stmt->execute()) {
             throw new Exception("Execution failed: " . $stmt->error);
         }

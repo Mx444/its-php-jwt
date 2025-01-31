@@ -63,6 +63,48 @@ class AuthService
         return $token;
     }
 
+    public function updateAuth($token, $id, $col, $password)
+    {
+        $auth = $this->authRepository->findById($id);
+        if (!$auth) {
+            throw new Exception("Utente non trovato.");
+        }
+
+        $isTokenValid = $this->jwtService->validateJwt($token);
+        if (!$isTokenValid) {
+            throw new Exception("Token non valido.");
+        }
+
+        $isPasswordValid = $this->bcryptProvider->comparePassword($password, $auth['password']);
+        if (!$isPasswordValid) {
+            throw new Exception("Password non valida.");
+        }
+
+        $this->authRepository->update($id, $col);
+        return "Auth updated successfully";
+    }
+
+    public function deleteAuth($token, $id, $password)
+    {
+        $auth = $this->authRepository->findById($id);
+        if (!$auth) {
+            throw new Exception("Utente non trovato.");
+        }
+
+        $isTokenValid = $this->jwtService->validateJwt($token);
+        if (!$isTokenValid) {
+            throw new Exception("Token non valido.");
+        }
+
+        $isPasswordValid = $this->bcryptProvider->comparePassword($password, $auth['password']);
+        if (!$isPasswordValid) {
+            throw new Exception("Password non valida.");
+        }
+
+        $this->authRepository->delete($id);
+        return "Auth deleted successfully";
+    }
+
     public function __destruct()
     {
         $this->connectionProvider->closeConnection();
