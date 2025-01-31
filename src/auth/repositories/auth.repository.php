@@ -63,7 +63,7 @@ class AuthRepository
         if ($stmt === false) {
             throw new Exception("Failed to prepare the query: " . $this->db->error);
         }
-        $stmt->bind_param("is", $id);
+        $stmt->bind_param("i", $id);
         if (!$stmt->execute()) {
             throw new Exception("Execution failed: " . $stmt->error);
         }
