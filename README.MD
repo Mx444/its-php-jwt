@@ -1,6 +1,6 @@
 # PHP Exercise 🚀
 
-Benvenuti nel progetto **Steve Jobs Academy PHP**! Questo progetto è un esempio di applicazione PHP che utilizza diverse librerie e strumenti per la gestione delle variabili d'ambiente, autenticazione JWT e altro ancora.
+Questo progetto è un esempio di applicazione PHP che utilizza diverse librerie e strumenti per la gestione delle variabili d'ambiente, autenticazione JWT e altro ancora.
 
 ## Struttura del Progetto 📂
 
