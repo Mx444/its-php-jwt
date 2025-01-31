@@ -13,7 +13,7 @@ class AuthRepository
     {
         $query = "SELECT * FROM auth WHERE email = ? AND deleted_at IS NULL";
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param("s", $email);
+          $stmt->bind_param("s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
         $stmt->close();
