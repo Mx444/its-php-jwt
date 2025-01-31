@@ -57,5 +57,3 @@ Se desideri contribuire al progetto, sentiti libero di fare una fork del reposit
 Questo progetto è distribuito sotto la licenza MIT. Vedi il file [LICENSE](LICENSE) per maggiori dettagli.
 
 ---
-
-Grazie per aver scelto il progetto **Steve Jobs Academy PHP**! ✨
