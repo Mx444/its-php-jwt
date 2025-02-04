@@ -2,13 +2,11 @@
 session_start();
 
 if (!isset($_SESSION['token'])) {
-    header("Location: ../index.php");
+    header("Location: ../auth/login.php");
     exit();
 }
 
-require_once __DIR__ . '/../../../vendor/autoload.php';
 require_once __DIR__ . '/../../task/controllers/task.controller.php';
-require_once __DIR__ . '/../../auth/config/jwt.middleware.php';
 
 $taskController = new TaskController();
 
@@ -262,8 +260,7 @@ if (isset($_POST['updateStatus'])) {
         <div class="dropdown">
             <a href="javascript:void(0)">Account</a>
             <div class="dropdown-content">
-                <a href="auth.php">Modifica Account</a>
-                <a href="profile.php">Profilo</a>
+                <a href="../auth/update.php">Modifica Account</a>
             </div>
         </div>
         <form method="POST" style="margin-left: 20px;">
