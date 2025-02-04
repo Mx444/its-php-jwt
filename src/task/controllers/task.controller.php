@@ -32,17 +32,18 @@ class TaskController
                 $this->taskService->createTask(userId: $userId, description: $description);
                 http_response_code(201);
                 $_SESSION['success'] = 'Task creato con successo.';
-                return 201;
+                header("Location: ./index.php");
+                return  201;
             } catch (Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
                 http_response_code(400);
-                header("Location: ../dashboard/index.php");
+                header("Location: ./index.php");
                 exit();
             }
         } else {
             $_SESSION['error'] = 'La descrizione è obbligatoria.';
             http_response_code(400);
-            header("Location: ../dashboard/index.php");
+            header("Location: index.php");
             exit();
         }
     }
@@ -60,7 +61,7 @@ class TaskController
         } catch (Exception $e) {
             $_SESSION['error'] = $e->getMessage();
             http_response_code(400);
-            header("Location: ../dashboard/index.php");
+            header("Location: index.php");
             exit();
         }
     }
@@ -81,13 +82,13 @@ class TaskController
             } catch (Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
                 http_response_code(400);
-                header("Location: ../dashboard/index.php");
+                header("Location: index.php");
                 exit();
             }
         } else {
             $_SESSION['error'] = 'ID del task obbligatorio.';
             http_response_code(400);
-            header("Location: ../dashboard/index.php");
+            header("Location: index.php");
             exit();
         }
     }
@@ -114,17 +115,18 @@ class TaskController
                 );
                 $_SESSION['success'] = 'Descrizione aggiornata con successo.';
                 http_response_code(200);
-                return 200;
+                header("Location: index.php");
+                exit();
             } catch (Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
                 http_response_code(400);
-                header("Location: ../dashboard/index.php");
+                header("Location: index.php");
                 exit();
             }
         } else {
             $_SESSION['error'] = 'ID del task e nuova descrizione obbligatori.';
             http_response_code(400);
-            header("Location: ../dashboard/index.php");
+            header("Location: index.php");
             exit();
         }
     }
@@ -153,17 +155,18 @@ class TaskController
                 );
                 $_SESSION['success'] = 'Stato aggiornato con successo.';
                 http_response_code(200);
-                return 200;
+                header("Location: index.php");
+                exit();
             } catch (Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
                 http_response_code(400);
-                header("Location: ../dashboard/index.php");
+                header("Location: index.php");
                 exit();
             }
         } else {
             $_SESSION['error'] = 'ID del task e stato obbligatori.';
             http_response_code(400);
-            header("Location: ../dashboard/index.php");
+            header("Location: index.php");
             exit();
         }
     }
@@ -184,17 +187,18 @@ class TaskController
                 $this->taskService->deleteTask(taskId: $taskId);
                 http_response_code(200);
                 $_SESSION['success'] = 'Task eliminato con successo.';
-                return 200;
+                header("Location: index.php");
+                exit();
             } catch (Exception $e) {
                 $_SESSION['error'] = $e->getMessage();
                 http_response_code(400);
-                header("Location: ../dashboard/index.php");
+                header("Location: index.php");
                 exit();
             }
         } else {
             $_SESSION['error'] = 'ID del task obbligatorio.';
             http_response_code(400);
-            header("Location: ../dashboard/index.php");
+            header("Location: index.php");
             exit();
         }
     }

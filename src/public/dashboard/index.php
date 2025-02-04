@@ -2,7 +2,7 @@
 session_start();
 
 if (!isset($_SESSION['token'])) {
-    header("Location: index.php");
+    header("Location: ../index.php");
     exit();
 }
 
@@ -19,8 +19,6 @@ if (isset($_POST['addTask'])) {
         'description' => $_POST['newTask'],
     ];
     $taskController->createTask($data);
-    header("Location: ../dashboard/index.php");
-    exit();
 }
 
 if (isset($_POST['removeTask'])) {
@@ -28,8 +26,6 @@ if (isset($_POST['removeTask'])) {
         'id' => $_POST['taskIdToRemove']
     ];
     $taskController->deleteTask($data);
-    header("Location: ../dashboard/index.php");
-    exit();
 }
 
 if (isset($_POST['updateDescription'])) {
@@ -38,8 +34,6 @@ if (isset($_POST['updateDescription'])) {
         'value' => $_POST['value']
     ];
     $taskController->updateDescription($data);
-    header("Location: ../dashboard/index.php");
-    exit();
 }
 
 
@@ -50,8 +44,6 @@ if (isset($_POST['updateStatus'])) {
 
     ];
     $taskController->updateStatus($data);
-    header("Location: ../dashboard/index.php");
-    exit();
 }
 ?>
 
