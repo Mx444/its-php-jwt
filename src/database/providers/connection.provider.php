@@ -2,43 +2,55 @@
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../../');
+$dotenv = Dotenv\Dotenv::createImmutable(paths: __DIR__ . '/../../../');
 $dotenv->load();
-
-
 
 class ConnectionProvider
 {
-    private $connection;
+    private static $connection = null;
 
-    private function createConnection()
+    /**
+     * Creates a new PDO connection.
+     * 
+     * @return PDO The PDO connection.
+     */
+    private static function createConnection(): PDO
     {
         $host = $_ENV['DB_HOST'];
         $username = $_ENV['DB_USER'];
         $password = $_ENV['DB_PASSWORD'];
         $dbname = $_ENV['DB_NAME'];
+        $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
 
         try {
-            return new mysqli($host, $username, $password, $dbname);
-        } catch (Exception $error) {
+            $pdo = new PDO(dsn: $dsn, username: $username, password: $password, options: [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_PERSISTENT => true
+            ]);
+            return $pdo;
+        } catch (PDOException $error) {
             die("Connection failed: " . $error->getMessage());
         }
     }
 
-    public function getConnection()
+    /**
+     * Returns the PDO connection.
+     * 
+     * @return PDO The PDO connection.
+     */
+    public static function getConnection(): PDO
     {
-        if ($this->connection === null) {
-            $this->connection = $this->createConnection();
+        if (self::$connection === null) {
+            self::$connection = self::createConnection();
         }
-
-        return $this->connection;
+        return self::$connection;
     }
 
-    public function closeConnection()
+    public static function closeConnection(): void
     {
-        if ($this->connection) {
-            $this->connection->close();
-            $this->connection = null;
+        if (self::$connection !== null) {
+            self::$connection = null;
         }
     }
 }

@@ -2,89 +2,87 @@
 
 class AuthRepository
 {
-    private $db;
+    private PDO $db;
 
-    public function __construct($db)
+    public function __construct(PDO $db)
     {
         $this->db = $db;
     }
 
-    public function findByEmail($email)
+    /**
+     * Finds a user by email.
+     * 
+     * @param string $email The user's email.
+     * @return array|null The user data or null if not found.
+     */
+    public function findByEmail(string $email): ?array
     {
-        $query = "SELECT * FROM auth WHERE email = ? AND deleted_at IS NULL";
-        $stmt = $this->db->prepare($query);
-          $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $stmt->close();
-        if ($result->num_rows > 0) {
-            return $result->fetch_assoc();
-        } else {
-            return null;
-        }
+        $query = "SELECT * FROM auth WHERE email = :email AND deleted_at IS NULL";
+        $stmt = $this->db->prepare(query: $query);
+        $stmt->execute(params: ['email' => $email]);
+        return $stmt->fetch(mode: PDO::FETCH_ASSOC) ?: null;
     }
 
-    public function findById($id)
+    /**
+     * Finds a user by ID.
+     * 
+     * @param int $id The user's ID.
+     * @return array|null The user data or null if not found.
+     */
+    public function findById(int $id): ?array
     {
-        $query = "SELECT * FROM auth WHERE id = ? AND deleted_at IS NULL";
-        $stmt = $this->db->prepare($query);
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $stmt->close();
-        if ($result->num_rows > 0) {
-            return $result->fetch_assoc();
-        } else {
-            return null;
-        }
+        $query = "SELECT * FROM auth WHERE id = :id AND deleted_at IS NULL";
+        $stmt = $this->db->prepare(query: $query);
+        $stmt->execute(params: ['id' => $id]);
+        return $stmt->fetch(mode: PDO::FETCH_ASSOC) ?: null;
     }
 
-    public function create($email, $hashedPassword)
+    /**
+     * Creates a new user.
+     * 
+     * @param string $email The user's email.
+     * @param string $hashedPassword The user's hashed password.
+     * @return int The ID of the newly created user.
+     */
+    public function create(string $email, string $hashedPassword): int
     {
-        $query = "INSERT INTO auth (email, password) VALUES (?, ?)";
-        $stmt = $this->db->prepare($query);
-        if ($stmt === false) {
-            throw new Exception("Failed to prepare the query: " . $this->db->error);
-        }
-        $stmt->bind_param("ss", $email, $hashedPassword);
-        if (!$stmt->execute()) {
-            throw new Exception("Execution failed: " . $stmt->error);
-        }
-        $insertedId = $stmt->insert_id;
-        $stmt->close();
-        return $insertedId;
+        $query = "INSERT INTO auth (email, password) VALUES (:email, :password)";
+        $stmt = $this->db->prepare(query: $query);
+        $stmt->execute(params: ['email' => $email, 'password' => $hashedPassword]);
+        return (int) $this->db->lastInsertId();
     }
 
-    public function update($id, $col)
+    /**
+     * Updates a user's data.
+     * 
+     * @param int $id The user's ID.
+     * @param string $col The column to update.
+     * @param string $value The new value.
+     * @return int The number of affected rows.
+     */
+    public function update(int $id, string $col, string $value): int
     {
-        $col = $col == 'password' ? 'password' : 'email';
-        $query = "UPDATE auth SET $col = ?, updated_At = NOW() WHERE id = ?";
-        $stmt = $this->db->prepare($query);
-        if ($stmt === false) {
-            throw new Exception("Failed to prepare the query: " . $this->db->error);
+        if (!in_array(needle: $col, haystack: ['password', 'email'])) {
+            throw new InvalidArgumentException(message: "Colonna non valida: $col");
         }
-        $stmt->bind_param("i", $id);
-        if (!$stmt->execute()) {
-            throw new Exception("Execution failed: " . $stmt->error);
-        }
-        $updatedRows = $stmt->affected_rows;
-        $stmt->close();
-        return $updatedRows;
+
+        $query = "UPDATE auth SET $col = :value, updated_at = NOW() WHERE id = :id";
+        $stmt = $this->db->prepare(query: $query);
+        $stmt->execute(params: ['value' => $value, 'id' => $id]);
+        return $stmt->rowCount();
     }
 
-    public function delete($id)
+    /**
+     * Deletes a user.
+     * 
+     * @param int $id The user's ID.
+     * @return int The number of affected rows.
+     */
+    public function delete(int $id): int
     {
-        $query = "UPDATE auth SET deleted_at = NOW() WHERE id = ?";
-        $stmt = $this->db->prepare($query);
-        if ($stmt === false) {
-            throw new Exception("Failed to prepare the query: " . $this->db->error);
-        }
-        $stmt->bind_param("i", $id);
-        if (!$stmt->execute()) {
-            throw new Exception("Execution failed: " . $stmt->error);
-        }
-        $deletedRows = $stmt->affected_rows;
-        $stmt->close();
-        return $deletedRows;
+        $query = "UPDATE auth SET deleted_at = NOW() WHERE id = :id";
+        $stmt = $this->db->prepare(query: $query);
+        $stmt->execute(params: ['id' => $id]);
+        return $stmt->rowCount();
     }
 }

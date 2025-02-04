@@ -2,32 +2,37 @@
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../../');
+
+$dotenv = Dotenv\Dotenv::createImmutable(paths: __DIR__ . '/../../../');
 $dotenv->load();
 
 class BcryptProvider
 {
-
-    private function generateSalt()
+    /**
+     * Hashes the given password using bcrypt.
+     * 
+     * @param string $data The password to hash.
+     * @return string The hashed password.
+     */
+    public function hashPassword(string $data): string
     {
-        $length = $_ENV['LENGTH'];
-        return bin2hex(random_bytes($length));
-    }
-
-    public function hashPassword($data)
-    {
-        $salt = $this->generateSalt();
         $options = [
             'cost' => $_ENV['SALT'],
-            'salt' => $salt
         ];
 
-        $hashedPassword = password_hash($data, PASSWORD_BCRYPT, $options);
+        $hashedPassword = password_hash(password: $data, algo: PASSWORD_BCRYPT, options: $options);
         return $hashedPassword;
     }
 
-    public function comparePassword($data, $encrypted)
+    /**
+     * Compares a given password with a hashed password.
+     * 
+     * @param string $data The password to compare.
+     * @param string $encrypted The hashed password.
+     * @return bool True if the passwords match, false otherwise.
+     */
+    public function comparePassword(string $data, string $encrypted): bool
     {
-        return password_verify($data, $encrypted);
+        return password_verify(password: $data, hash: $encrypted);
     }
 }

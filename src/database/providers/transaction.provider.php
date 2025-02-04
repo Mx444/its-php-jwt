@@ -11,17 +11,33 @@ class TransactionProvider
         $this->db = $this->connectionProvider->getConnection();
     }
 
-    public function beginTransaction()
+    /**
+     * Begins a transaction.
+     */
+    public function beginTransaction(): void
     {
-        $this->db->begin_transaction();
+        $this->db->beginTransaction();
     }
 
-    public function commit()
+    /**
+     * Commits the current transaction.
+     * 
+     * @throws Exception If the commit fails.
+     */
+    public function commit(): void
     {
-        $this->db->commit();
+        try {
+            $this->db->commit();
+        } catch (PDOException $e) {
+            $this->db->rollBack();
+            throw new Exception(message: "Commit failed: " . $e->getMessage());
+        }
     }
 
-    public function rollBack()
+    /**
+     * Rolls back the current transaction.
+     */
+    public function rollBack(): void
     {
         $this->db->rollBack();
     }
