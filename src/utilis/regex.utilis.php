@@ -1,5 +1,9 @@
 <?php
 
+namespace Utilis;
+
+use Exception;
+
 function validateEmail($email)
 {
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {

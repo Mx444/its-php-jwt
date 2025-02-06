@@ -13,9 +13,9 @@ class AuthMiddleware
      * AuthMiddleware constructor.
      * Initializes the JwtService.
      */
-    public function __construct(JwtService $jwtService)
+    public function __construct()
     {
-        $this->jwtService = $jwtService;
+        $this->jwtService = new JwtService();
     }
 
     /**

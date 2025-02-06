@@ -1,27 +1,33 @@
 <?php
 
-require_once __DIR__ . '/../../database/providers/connection.provider.php';
-require_once __DIR__ . '/../../database/providers/transaction.provider.php';
-require_once __DIR__ . '/../../auth/providers/bcrypt.provider.php';
-require_once __DIR__ . '/../../auth/providers/jwt.service.php';
-require_once __DIR__ . '/../../auth/repositories/auth.repository.php';
-require_once __DIR__ . '/../../utilis/regex.utilis.php';
+namespace Auth\Services;
+
+use PDO;
+use Exception;
+use Auth\Repositories\AuthRepository;
+use Database\Providers\DatabaseService;
+use Database\Providers\TransactionProvider;
+use Auth\Providers\ArgonProvider;
+use Auth\Config\JwtService;
+use Auth\Models\JwtPayloadData;
+use function Utilis\validateEmail;
+use function Utilis\validatePassword;
 
 class AuthService
 {
-    private ConnectionProvider $connectionProvider;
+    private DatabaseService $connectionProvider;
     private TransactionProvider $transactionProvider;
-    private BcryptProvider $bcryptProvider;
+    private ArgonProvider $argonProvider;
     private JwtService $jwtService;
     private AuthRepository $authRepository;
     private PDO $db;
 
     public function __construct()
     {
-        $this->connectionProvider = new ConnectionProvider();
+        $this->connectionProvider = new DatabaseService();
         $this->db = $this->connectionProvider->getConnection();
-        $this->transactionProvider = new TransactionProvider(connectionProvider: $this->connectionProvider);
-        $this->bcryptProvider = new BcryptProvider();
+        $this->transactionProvider = new TransactionProvider(databaseService: $this->connectionProvider);
+        $this->argonProvider = new ArgonProvider();
         $this->jwtService = new JwtService();
         $this->authRepository = new AuthRepository(db: $this->db);
     }
@@ -39,11 +45,11 @@ class AuthService
         validateEmail(email: $email);
         validatePassword(password: $password);
 
-        if ($this->authRepository->findByEmail(email: $email)) {
+        if ($this->authRepository->read(condition: 'email', value: $email)) {
             throw new Exception(message: "Email già esistente.");
         }
 
-        $hashedPassword = $this->bcryptProvider->hashPassword(data: $password);
+        $hashedPassword = $this->argonProvider->hashPassword(data: $password);
 
         try {
             $this->transactionProvider->beginTransaction();
@@ -64,27 +70,25 @@ class AuthService
      * @return string The JWT token.
      * @throws Exception If the login fails.
      */
-    public function login(string $email, string $password): string
+    public function login(string $email, string $password): array
     {
-        $auth = $this->authRepository->findByEmail(email: $email);
+        $auth = $this->authRepository->read(condition: 'email', value: $email);
         if (!$auth) {
             throw new Exception(message: "Email non trovata.");
         }
 
-        if (!$this->bcryptProvider->comparePassword(data: $password, encrypted: $auth['password'])) {
+        if (!$this->argonProvider->comparePassword(data: $password, encrypted: $auth['password'])) {
             throw new Exception(message: "Password non valida.");
         }
 
-        $tokenPayload = [
-            'id' => $auth['id'],
-            'email' => $auth['email'],
-            'exp' => time() + 3600
+        $payload = new JwtPayloadData(id: $auth['id'], email: $auth['email']);
+        $accessToken = $this->jwtService->generateAccessToken($payload);
+        $refreshToken = $this->jwtService->generateRefreshToken($payload);
+
+        return [
+            'access_token' => $accessToken,
+            'refresh_token' => $refreshToken
         ];
-
-        $token = $this->jwtService->generateJwt(data: $tokenPayload);
-        $_SESSION['token'] = $token;
-
-        return $token;
     }
 
     /**
@@ -99,7 +103,7 @@ class AuthService
      */
     public function updateAuth(string $token, int $id, string $col, string $oldPassword, string $newValue): string
     {
-        $auth = $this->authRepository->findById(id: $id);
+        $auth = $this->authRepository->read(condition: 'id', value: $id);
         if (!$auth) {
             throw new Exception(message: "Utente non trovato.");
         }
@@ -108,7 +112,7 @@ class AuthService
             throw new Exception(message: "Token non valido.");
         }
 
-        if (!$this->bcryptProvider->comparePassword(data: $oldPassword, encrypted: $auth['password'])) {
+        if (!$this->argonProvider->comparePassword(data: $oldPassword, encrypted: $auth['password'])) {
             throw new Exception(message: "Password non valida.");
         }
 
@@ -120,14 +124,14 @@ class AuthService
             throw new Exception(message: "La nuova email non può essere uguale a quella attuale.");
         }
 
-        $samePassword = $this->bcryptProvider->comparePassword(data: $newValue, encrypted: $auth['password']);
+        $samePassword = $this->argonProvider->comparePassword(data: $newValue, encrypted: $auth['password']);
         if ($col === 'password' && $samePassword === true) {
             throw new Exception(message: "La nuova password non può essere uguale a quella attuale.");
         }
 
         if ($col === 'password') {
             validatePassword(password: $newValue);
-            $newValue = $this->bcryptProvider->hashPassword(data: $newValue);
+            $newValue = $this->argonProvider->hashPassword(data: $newValue);
         }
 
         try {
@@ -151,7 +155,7 @@ class AuthService
      */
     public function deleteAuth(string $token, int $id, string $password): string
     {
-        $auth = $this->authRepository->findById(id: $id);
+        $auth = $this->authRepository->read(condition: 'id', value: $id);
         if (!$auth) {
             throw new Exception(message: "Utente non trovato.");
         }
@@ -160,7 +164,7 @@ class AuthService
             throw new Exception(message: "Token non valido.");
         }
 
-        if (!$this->bcryptProvider->comparePassword(data: $password, encrypted: $auth['password'])) {
+        if (!$this->argonProvider->comparePassword(data: $password, encrypted: $auth['password'])) {
             throw new Exception(message: "Password non valida.");
         }
 
@@ -173,10 +177,5 @@ class AuthService
             $this->transactionProvider->rollBack();
             throw new Exception(message: "Errore nell'eliminazione: " . $e->getMessage());
         }
-    }
-
-    public function __destruct()
-    {
-        $this->connectionProvider->closeConnection();
     }
 }
