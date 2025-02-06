@@ -1,22 +1,12 @@
 <?php
 
-namespace Database\Providers;
-
-use PDOException;
-use Exception;
-
 class TransactionProvider
 {
     private $db;
 
-    /**
-     * TransactionProvider constructor.
-     *
-     * @param DatabaseService $databaseService The database service instance.
-     */
-    public function __construct(DatabaseService $databaseService)
+    public function __construct($databaseService)
     {
-        $this->db = $databaseService->getConnection();
+        $this->db = $databaseService;
     }
 
     /**

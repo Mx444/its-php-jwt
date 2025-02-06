@@ -1,9 +1,5 @@
 <?php
 
-namespace Auth\Repositories;
-
-use PDO;
-use InvalidArgumentException;
 
 class AuthRepository
 {
@@ -36,7 +32,7 @@ class AuthRepository
      * @param string $value The value to search for.
      * @return array The user's data.
      */
-    public function read($condition, $value): array
+    public function read($condition, $value)
     {
         if (!in_array(needle: $condition, haystack: ['id', 'email'])) {
             throw new InvalidArgumentException(message: "Colonna non valida: $condition");
@@ -44,7 +40,7 @@ class AuthRepository
         $query = "SELECT * FROM auth WHERE $condition = :value";
         $stmt = $this->db->prepare($query);
         $stmt->execute(['value' => $value]);
-        return $stmt->fetchAll() ?: [];
+        return $stmt->fetch() ?: [];
     }
 
 

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITS Steve Jobs Accadem - Benvenuto</title>
+    <title>ITS Steve Jobs Accademy - Benvenuto</title>
     <style>
         body {
             font-family: 'Inter', sans-serif;

@@ -1,9 +1,6 @@
 <?php
+include __DIR__ . '/../../auth/config/jwt-strategy.php';
 
-namespace Auth\Middleware;
-
-use Exception;
-use Auth\Config\JwtService;
 
 class AuthMiddleware
 {
@@ -13,9 +10,9 @@ class AuthMiddleware
      * AuthMiddleware constructor.
      * Initializes the JwtService.
      */
-    public function __construct()
+    public function __construct(JwtService $jwtService)
     {
-        $this->jwtService = new JwtService();
+        $this->jwtService =  $jwtService;
     }
 
     /**

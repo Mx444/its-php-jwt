@@ -1,17 +1,13 @@
 <?php
+require_once __DIR__ . '/../../database/connection.provider.php';
+require_once __DIR__ . '/../../database/transaction.provider.php';
+require_once __DIR__ . '/../../auth/providers/argon.provider.php';
+require_once __DIR__ . '/../../auth/auth.repository.php';
+require_once __DIR__ . '/../../auth/config/jwt-strategy.php';
+require_once __DIR__ . '/../../auth/config/jwt-payload.entity.php';
+require_once __DIR__ . '/../../utilis/regex.utilis.php';
 
-namespace Auth\Services;
 
-use PDO;
-use Exception;
-use Auth\Repositories\AuthRepository;
-use Database\Providers\DatabaseService;
-use Database\Providers\TransactionProvider;
-use Auth\Providers\ArgonProvider;
-use Auth\Config\JwtService;
-use Auth\Models\JwtPayloadData;
-use function Utilis\validateEmail;
-use function Utilis\validatePassword;
 
 class AuthService
 {
@@ -22,13 +18,13 @@ class AuthService
     private AuthRepository $authRepository;
     private PDO $db;
 
-    public function __construct()
+    public function __construct(JwtService $jwtService)
     {
         $this->connectionProvider = new DatabaseService();
         $this->db = $this->connectionProvider->getConnection();
-        $this->transactionProvider = new TransactionProvider(databaseService: $this->connectionProvider);
+        $this->transactionProvider = new TransactionProvider(databaseService: $this->db);
         $this->argonProvider = new ArgonProvider();
-        $this->jwtService = new JwtService();
+        $this->jwtService = $jwtService;
         $this->authRepository = new AuthRepository(db: $this->db);
     }
 

@@ -1,8 +1,5 @@
 <?php
-
-namespace Auth\Models;
-
-use Auth\Interfaces\JwtPayload;
+include_once __DIR__ . '/../../auth/config/jwt-payload.interface.php';
 
 class JwtPayloadData implements JwtPayload
 {

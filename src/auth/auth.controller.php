@@ -1,13 +1,14 @@
 <?php
 
-namespace Auth\Controllers;
+require_once __DIR__ . '/../auth/providers/auth.service.php';
+require_once __DIR__ . '/../auth/config/jwt-strategy.php';
+require_once __DIR__ . '/../auth/config/jwt.middleware.php';
 
-use Exception;
-use Auth\Services\AuthService;
-use Auth\Middleware\AuthMiddleware;
+
 
 class AuthController
 {
+    private JwtService $jwtService;
     private AuthService $authService;
     private AuthMiddleware $authMiddleware;
 
@@ -17,8 +18,9 @@ class AuthController
      */
     public function __construct()
     {
-        $this->authService = new AuthService();
-        $this->authMiddleware = new AuthMiddleware();
+        $this->jwtService = new JwtService();
+        $this->authService = new AuthService(jwtService: $this->jwtService);
+        $this->authMiddleware = new AuthMiddleware(jwtService: $this->jwtService);
     }
 
     public function register(array $data): void

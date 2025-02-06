@@ -1,9 +1,4 @@
 <?php
-
-namespace Auth\Config;
-
-use Dotenv\Dotenv;
-
 class JwtModule
 {
     private static ?JwtModule $instance = null;
@@ -23,7 +18,7 @@ class JwtModule
     private function __construct()
     {
         // Load environment variables
-        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
+        $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../../');
         $dotenv->load();
 
         // Initialize configuration properties with environment variables
@@ -32,8 +27,8 @@ class JwtModule
         $this->audience = $_ENV['AUDIENCE'];
         $this->expiration = (int)$_ENV['EXP'];
         $this->head = $_ENV['HEAD'];
-        $this->accessTokenExpiration = (int)$_ENV['ACCESS_TOKEN_EXP'];
-        $this->refreshTokenExpiration = (int)$_ENV['REFRESH_TOKEN_EXP'];
+        $this->accessTokenExpiration = $_ENV['ACCESS_TOKEN_EXP'];
+        $this->refreshTokenExpiration = $_ENV['REFRESH_TOKEN_EXP'];
     }
 
     /**

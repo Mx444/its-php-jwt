@@ -1,10 +1,7 @@
 <?php
 
-namespace Database\Providers;
+require_once __DIR__ . '/../../vendor/autoload.php';
 
-use PDO;
-use PDOException;
-use Dotenv\Dotenv;
 
 class DatabaseService
 {
@@ -34,7 +31,7 @@ class DatabaseService
     private static function createConnection(): PDO
     {
         // Load environment variables
-        $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
+        $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
         $dotenv->load();
 
         // Retrieve database connection details from environment variables
