@@ -1,18 +1,28 @@
 <?php
 
+namespace Database\Providers;
+
+use PDOException;
+use Exception;
+
 class TransactionProvider
 {
-    private $connectionProvider;
     private $db;
 
-    public function __construct(ConnectionProvider $connectionProvider)
+    /**
+     * TransactionProvider constructor.
+     *
+     * @param DatabaseService $databaseService The database service instance.
+     */
+    public function __construct(DatabaseService $databaseService)
     {
-        $this->connectionProvider = $connectionProvider;
-        $this->db = $this->connectionProvider->getConnection();
+        $this->db = $databaseService->getConnection();
     }
 
     /**
      * Begins a transaction.
+     *
+     * @return void
      */
     public function beginTransaction(): void
     {
@@ -21,7 +31,8 @@ class TransactionProvider
 
     /**
      * Commits the current transaction.
-     * 
+     *
+     * @return void
      * @throws Exception If the commit fails.
      */
     public function commit(): void
@@ -30,12 +41,14 @@ class TransactionProvider
             $this->db->commit();
         } catch (PDOException $e) {
             $this->db->rollBack();
-            throw new Exception(message: "Commit failed: " . $e->getMessage());
+            throw new Exception("Commit failed: " . $e->getMessage());
         }
     }
 
     /**
      * Rolls back the current transaction.
+     *
+     * @return void
      */
     public function rollBack(): void
     {
