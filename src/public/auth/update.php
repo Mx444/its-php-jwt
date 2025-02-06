@@ -91,10 +91,6 @@ if (isset($_POST['logout'])) {
         <a href="../dashboard/index.php" class="back-link">Torna alla Home</a>
     </div>
 
-    <footer>
-        <p>&copy; 2025 ITS Steve Jobs Academy - Tutti i diritti riservati | <a href="#" class="footer-link">Privacy Policy</a></p>
-    </footer>
-
 </body>
 
 </html>
