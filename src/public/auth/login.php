@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../auth/auth.controller.php';
 
 $isAuthenticated = isset($_SESSION['access_token']);
 if ($isAuthenticated) {
-    header("Location: ../dashboard/index.php");
+    header("Location: ../dashboard/index.php"); // !fare page dashboard
     exit();
 }
 

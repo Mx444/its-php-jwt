@@ -70,6 +70,7 @@ class AuthController
             $tokens = $this->authService->login($email, $password);
             $_SESSION['access_token'] = $tokens['access_token'];
             $_SESSION['refresh_token'] = $tokens['refresh_token'];
+            $_SESSION['roles'] = $tokens['roles'];
             http_response_code(200);
             $_SESSION['success'] = 'Accesso effettuato con successo.';
             header("Location: ../dashboard/index.php");
