@@ -34,6 +34,7 @@ class ProductsController
             return  $this->productsService->getAllProducts(bool: 1);
         } catch (Exception $e) {
             sendResponse(statusCode: 400, type: 'error', message: $e->getMessage(), location: './index.php');
+            return [];
         }
     }
 

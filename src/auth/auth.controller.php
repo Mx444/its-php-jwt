@@ -53,7 +53,7 @@ class AuthController
             $auth = $this->authService->login(email: $email, password: $password);
             $_SESSION['access_token'] = $auth['access_token'];
             $_SESSION['refresh_token'] = $auth['refresh_token'];
-            $_SESSION['role'] = $auth['role'];
+            $_SESSION['role'] = $auth['role']; //!! DA AGGIUNGERE A JWT
             sendResponse(statusCode: 200, type: 'success', message: CodeMessage::SUCCESS_LOGIN->value, location: '../index.php');
         } catch (Exception $e) {
             sendResponse(statusCode: 400, type: 'error', message: $e->getMessage(), location: 'login.php');
@@ -94,7 +94,7 @@ class AuthController
         }
     }
 
-    public function updateRoleById($data)
+    public function updateRoleById(array $data): void
     {
         $tokenData = $this->authMiddleware->validateToken();
         $token = $tokenData['token'];
@@ -108,7 +108,7 @@ class AuthController
             sendResponse(statusCode: 400, type: 'error', message: $e->getMessage(), location: './update.php');
         }
     }
-    public function deleteAuthById($data)
+    public function deleteAuthById(array $data): void
     {
         $tokenData = $this->authMiddleware->validateToken();
         $token = $tokenData['token'];
@@ -121,7 +121,7 @@ class AuthController
             sendResponse(statusCode: 400, type: 'error', message: $e->getMessage(), location: './update.php');
         }
     }
-    public function enableAuthById($data)
+    public function enableAuthById(array $data): void
     {
         $tokenData = $this->authMiddleware->validateToken();
         $token = $tokenData['token'];
