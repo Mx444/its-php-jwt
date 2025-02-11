@@ -1,7 +1,7 @@
 <?php
 include_once __DIR__ . '/../../auth/config/jwt-payload.interface.php';
 
-class JwtPayloadData implements JwtPayload
+class JwtPayloadDTO implements JwtPayload
 {
     private int $id;
     private string $email;

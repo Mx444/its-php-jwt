@@ -77,7 +77,7 @@ class AuthService
             throw new Exception(message: "Password non valida.");
         }
 
-        $payload = new JwtPayloadData(id: $auth['id'], email: $auth['email']);
+        $payload = new JwtPayloadDTO(id: $auth['id'], email: $auth['email']);
         $accessToken = $this->jwtService->generateAccessToken($payload);
         $refreshToken = $this->jwtService->generateRefreshToken($payload);
 
