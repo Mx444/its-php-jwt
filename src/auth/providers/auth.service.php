@@ -61,7 +61,7 @@ class AuthService
         if (!$auth) throw new Exception(message: "Email non trovata.");
         $mathPassword = $this->argonProvider->comparePassword(data: $password, encrypted: $auth['password']);
         if (!$mathPassword) throw new Exception(message: "Password non valida.");
-        $payload = new JwtPayloadDTO(id: $auth['id'], email: $auth['email']);
+        $payload = new JwtPayloadDTO(id: $auth['id'], email: $auth['email'], role: $auth['role']);
         $accessToken = $this->jwtService->generateAccessToken(payload: $payload);
         $refreshToken = $this->jwtService->generateRefreshToken(payload: $payload);
 

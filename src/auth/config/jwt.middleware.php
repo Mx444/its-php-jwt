@@ -24,6 +24,7 @@ class AuthMiddleware
                 return [
                     'id' => $tokenData['id'],
                     'email' => $tokenData['email'],
+                    'role' => $tokenData['role'],
                     'token' => $_SESSION['access_token']
                 ];
             } else {
@@ -37,6 +38,7 @@ class AuthMiddleware
                 return [
                     'id' => $tokenData['id'],
                     'email' => $tokenData['email'],
+                    'role' => $tokenData['role'],
                     'token' => $newAccessToken
                 ];
             } catch (Exception $e) {

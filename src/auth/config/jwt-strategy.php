@@ -32,6 +32,7 @@ if (!class_exists(class: 'JwtStrategy')) {
                 'aud' => $this->config->getAudience(),
                 'id' => $payload->getId(),
                 'email' => $payload->getEmail(),
+                'role' => $payload->getRole(),
             ];
 
             return JWT::encode(payload: $tokenPayload, key: $this->config->getSecret(), alg: 'HS256');
@@ -53,6 +54,8 @@ if (!class_exists(class: 'JwtStrategy')) {
                 'aud' => $this->config->getAudience(),
                 'id' => $payload->getId(),
                 'email' => $payload->getEmail(),
+                'role' => $payload->getRole(),
+
             ];
 
             return JWT::encode(payload: $tokenPayload, key: $this->config->getSecret(), alg: 'HS256');
@@ -68,7 +71,7 @@ if (!class_exists(class: 'JwtStrategy')) {
         public function refreshAccessToken(string $refreshToken): string
         {
             $decoded = $this->validateJwt(jwt: $refreshToken);
-            $payload = new JwtPayloadDTO(id: $decoded['id'], email: $decoded['email']);
+            $payload = new JwtPayloadDTO(id: $decoded['id'], email: $decoded['email'], role: $decoded['role']);
             return $this->generateAccessToken(payload: $payload);
         }
     }
