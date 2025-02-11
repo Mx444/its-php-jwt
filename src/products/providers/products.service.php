@@ -19,67 +19,40 @@ class ProductsService
         $this->productsRepository = new ProductsRepository(db: $this->db);
     }
 
-    /**
-     * Creates a new product.
-     * 
-     * @param string $name The product's name.
-     * @param string $description The product's description.
-     * @param float $price The product's price.
-     * @return int The ID of the newly created product.
-     */
+    public function getAllProducts(?bool $bool): array
+    {
+        try {
+            return $this->productsRepository->readAll($bool);
+        } catch (Exception $e) {
+            throw new Exception(message: "Errore nella lettura dei prodotti: " . $e->getMessage());
+        }
+    }
 
-    public function addProduct(string $name, string $description, float $price): int
+    public function addProduct(string $name, string $description, float $price): void
     {
         try {
             $this->transactionProvider->beginTransaction();
-            $productId = $this->productsRepository->create(name: $name, description: $description, price: $price);
+            $this->productsRepository->create(name: $name, description: $description, price: $price);
             $this->transactionProvider->commit();
-            return $productId;
         } catch (Exception $e) {
             $this->transactionProvider->rollBack();
             throw new Exception(message: "Errore nella creazione del prodotto: " . $e->getMessage());
         }
     }
 
-    public function getAllProducts(): array
+    public function updateProduct($id, $col, $newValue): bool
     {
-        try {
-            return $this->productsRepository->readAll();
-        } catch (Exception $e) {
-            throw new Exception("Errore nella lettura dei prodotti: " . $e->getMessage());
-        }
-    }
-
-    /**
-     * Retrieves a product by ID.
-     *
-     * @param int $id The ID of the product to retrieve.
-     * @return array|null The product data or null if not found
-     * .
-     */
-
-    public function getProduct(int $id): ?array
-    {
-        try {
-            return $this->productsRepository->read($id);
-        } catch (Exception $e) {
-            throw new Exception("Errore nella lettura del prodotto: " . $e->getMessage());
-        }
-    }
-
-    public function updateProduct($id, $col, $newValue)
-    {
-
         try {
             $this->transactionProvider->beginTransaction();
-            $result = $this->productsRepository->update($id, $col, $newValue);
+            $result = $this->productsRepository->update(id: $id, col: $col, newValue: $newValue);
             $this->transactionProvider->commit();
             return $result;
         } catch (Exception $e) {
             $this->transactionProvider->rollBack();
-            throw new Exception("Errore nell'aggiornamento del prodotto: " . $e->getMessage());
+            throw new Exception(message: "Errore nell'aggiornamento del prodotto: " . $e->getMessage());
         }
     }
+
     public function deleteProduct(int $id): bool
     {
         try {
@@ -89,7 +62,7 @@ class ProductsService
             return $result;
         } catch (Exception $e) {
             $this->transactionProvider->rollBack();
-            throw new Exception("Errore nella cancellazione del prodotto: " . $e->getMessage());
+            throw new Exception(message: "Errore nella cancellazione del prodotto: " . $e->getMessage());
         }
     }
 }

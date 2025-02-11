@@ -9,57 +9,47 @@ class ProductsRepository
         $this->db = $db;
     }
 
-    /**
-     * Creates a new product.
-     * 
-     * @param string $name The product's name.
-     * @param string $description The product's description.
-     * @param float $price The product's price.
-     * @return int The ID of the newly created product.
-     */
     public function create(string $name, string $description, float $price): int
     {
         $query = "INSERT INTO products (name, description, price) VALUES (:name, :description, :price)";
-        $stmt = $this->db->prepare($query);
-        $stmt->execute(['name' => $name, 'description' => $description, 'price' => $price]);
+        $stmt = $this->db->prepare(query: $query);
+        $stmt->execute(params: ['name' => $name, 'description' => $description, 'price' => $price]);
         return (int) $this->db->lastInsertId() ?: null;
     }
-    public function read($id)
+    public function read($id): mixed
     {
-        $query = "SELECT * FROM products WHERE id = :id";
-        $stmt = $this->db->prepare($query);
-        $stmt->execute(['id' => $id]);
+        $query = "SELECT * FROM products WHERE id = :id AND visible = 1";
+        $stmt = $this->db->prepare(query: $query);
+        $stmt->execute(params: ['id' => $id]);
         return $stmt->fetch() ?: [];
     }
 
-    public function readAll()
+    public function readAll(?bool $bool): array
     {
+        if ($bool === true) {
+            $query = "SELECT * FROM products";
+            $stmt = $this->db->prepare(query: $query);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        }
 
-        $query = "SELECT * FROM products";
-        $stmt = $this->db->prepare($query);
+        $query = "SELECT * FROM products WHERE visible = 1";
+        $stmt = $this->db->prepare(query: $query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
     }
     public function update($id, $col, $newValue)
     {
-        if (!in_array($col, ['name', 'description', 'price'])) {
-            throw new Exception("Colonna non valida");
-        }
-
+        if (!in_array(needle: $col, haystack: ['name', 'description', 'price', 'visible'])) throw new Exception(message: "Colonna non valida");
         $query = "UPDATE products SET $col = :newValue WHERE id = :id";
-        $stmt = $this->db->prepare($query);
-        return $stmt->execute(['id' => $id, 'newValue' => $newValue]);
+        $stmt = $this->db->prepare(query: $query);
+        return $stmt->execute(params: ['id' => $id, 'newValue' => $newValue]);
     }
-    /**
-     * Deletes a product.
-     * 
-     * @param int $id The product's ID.
-     * @return bool Whether the product was deleted successfully.
-     */
+
     public function delete(int $id): bool
     {
         $query = "DELETE FROM products WHERE id = :id";
-        $stmt = $this->db->prepare($query);
-        return $stmt->execute(['id' => $id]);
+        $stmt = $this->db->prepare(query: $query);
+        return $stmt->execute(params: ['id' => $id]);
     }
 }

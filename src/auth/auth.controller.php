@@ -45,7 +45,7 @@ class AuthController
             $_SESSION['access_token'] = $auth['access_token'];
             $_SESSION['refresh_token'] = $auth['refresh_token'];
             $_SESSION['role'] = $auth['role'];
-            sendResponse(statusCode: 200, type: 'success', message: CodeMessage::SUCCESS_LOGIN->value, location: 'index.php');
+            sendResponse(statusCode: 200, type: 'success', message: CodeMessage::SUCCESS_LOGIN->value, location: '../index.php');
         } catch (Exception $e) {
             sendResponse(statusCode: 400, type: 'error', message: $e->getMessage(), location: 'login.php');
         }
@@ -62,7 +62,6 @@ class AuthController
 
         try {
             $this->authService->updateAuth(token: $token, id: $userID, col: 'email', oldPassword: $oldPassword, newValue: $newEmail);
-            sendResponse(statusCode: 200, type: 'success', message: CodeMessage::SUCCESS_UPDATE_EMAIL->value, location: 'login.php');
             $this->logout();
         } catch (Exception $e) {
             sendResponse(statusCode: 400, type: 'error', message: $e->getMessage(), location: 'update.php');
@@ -80,7 +79,6 @@ class AuthController
 
         try {
             $this->authService->updateAuth(token: $token, id: $userID, col: 'password', oldPassword: $oldPassword, newValue: $newPassword);
-            sendResponse(statusCode: 200, type: 'success', message: CodeMessage::SUCCESS_UPDATE_PASSWORD->value, location: 'login.php');
             $this->logout();
         } catch (Exception $e) {
             sendResponse(statusCode: 400, type: 'error', message: $e->getMessage(), location: 'update.php');
@@ -97,7 +95,6 @@ class AuthController
 
         try {
             $this->authService->deleteAuth(token: $token, id: $userID, password: $password);
-            sendResponse(statusCode: 200, type: 'success', message: CodeMessage::SUCCESS_DELETE_ACCOUNT->value, location: 'login.php');
             $this->logout();
         } catch (Exception $e) {
             sendResponse(statusCode: 400, type: 'error', message: $e->getMessage(), location: 'delete.php');
@@ -107,7 +104,7 @@ class AuthController
     public function logout(): void
     {
         session_destroy();
-        header(header: "Location: login.php");
+        header(header: "Location: /php-auth/src/public/auth/login.php");
         exit();
     }
 }
