@@ -28,6 +28,7 @@ class AuthController
             return [];
         } catch (Exception $e) {
             sendResponse(statusCode: 400, type: 'error', message: $e->getMessage(), location: 'index.php');
+            return [];
         }
     }
     public function register(array $data): void
