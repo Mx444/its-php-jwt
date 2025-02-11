@@ -2,13 +2,11 @@
 session_start();
 
 require_once __DIR__ . '/../../auth/auth.controller.php';
+require_once __DIR__ . '/../../utils/token.utils.php';
 
-if (!isset($_SESSION['access_token'])) {
-    header("Location: ./login.php");
-    exit();
-}
-
+isNotAuthenticated();
 $authController = new AuthController();
+
 if (isset($_POST['updateEmail'])) {
     $data = [
         'newEmail' => $_POST['newEmail'],

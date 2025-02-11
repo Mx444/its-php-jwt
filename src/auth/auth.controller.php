@@ -3,6 +3,8 @@
 require_once __DIR__ . '/../auth/providers/auth.service.php';
 require_once __DIR__ . '/../auth/config/jwt-strategy.php';
 require_once __DIR__ . '/../auth/config/jwt.middleware.php';
+require_once __DIR__ . '/..//utils/response.utils.php';
+require_once __DIR__ . '/../utils/code-message.utils.php';
 
 
 
@@ -21,56 +23,31 @@ class AuthController
 
     public function register(array $data): void
     {
-        if (empty($data['email']) || empty($data['password'])) {
-            $_SESSION['error'] = 'Email e password sono obbligatori.';
-            http_response_code(response_code: 400);
-            header(header: "Location: register.php");
-            exit();
-        }
-
+        if (validateRequiredFields(data: $data, requiredFields: ['email', 'password'], errorMessage: CodeMessage::ERROR_REQUIRED_FIELDS->value, location: 'register.php')) return;
         $email = $data['email'];
         $password = $data['password'];
-
         try {
             $this->authService->register(email: $email, password: $password);
-            http_response_code(response_code: 201);
-            $_SESSION['success'] = 'Registrazione effettuata con successo.';
-            header(header: "Location: login.php");
-            exit();
+            sendResponse(statusCode: 200, type: 'success', message: CodeMessage::SUCCESS_REGISTER->value, location: 'login.php');
         } catch (Exception $e) {
-            $_SESSION['error'] = $e->getMessage();
-            http_response_code(response_code: 400);
-            header(header: "Location: register.php");
-            exit();
+            sendResponse(statusCode: 400, type: 'error', message: $e->getMessage(), location: 'register.php');
         }
     }
 
     public function login(array $data): void
     {
-        if (empty($data['email']) || empty($data['password'])) {
-            $_SESSION['error'] = 'Email e password sono obbligatori.';
-            http_response_code(response_code: 400);
-            header(header: "Location: login.php");
-            exit();
-        }
-
+        if (validateRequiredFields(data: $data, requiredFields: ['email', 'password'], errorMessage: CodeMessage::ERROR_REQUIRED_FIELDS->value, location: 'login.php')) return;
         $email = $data['email'];
         $password = $data['password'];
 
         try {
-            $tokens = $this->authService->login(email: $email, password: $password);
-            $_SESSION['access_token'] = $tokens['access_token'];
-            $_SESSION['refresh_token'] = $tokens['refresh_token'];
-            $_SESSION['roles'] = $tokens['roles'];
-            http_response_code(response_code: 200);
-            $_SESSION['success'] = 'Accesso effettuato con successo.';
-            header(header: "Location: ../dashboard/index.php");
-            exit();
+            $auth = $this->authService->login(email: $email, password: $password);
+            $_SESSION['access_token'] = $auth['access_token'];
+            $_SESSION['refresh_token'] = $auth['refresh_token'];
+            $_SESSION['role'] = $auth['role'];
+            sendResponse(statusCode: 200, type: 'success', message: CodeMessage::SUCCESS_LOGIN->value, location: 'index.php');
         } catch (Exception $e) {
-            http_response_code(response_code: 400);
-            $_SESSION['error'] = $e->getMessage();
-            header(header: "Location: login.php");
-            exit();
+            sendResponse(statusCode: 400, type: 'error', message: $e->getMessage(), location: 'login.php');
         }
     }
 
@@ -79,27 +56,16 @@ class AuthController
         $tokenData = $this->authMiddleware->validateToken();
         $token = $tokenData['token'];
         $userID = $tokenData['id'];
-
-        if (empty($data['newEmail']) || empty($data['oldPassword'])) {
-            $_SESSION['error'] = 'Nuova email e vecchia password sono obbligatorie.';
-            http_response_code(response_code: 400);
-            header(header: "Location: update.php");
-            exit();
-        }
-
+        if (validateRequiredFields(data: $data, requiredFields: ['newEmail', 'oldPassword'], errorMessage: CodeMessage::ERROR_UPDATE_FIELDS->value, location: 'update.php')) return;
         $newEmail = $data['newEmail'];
         $oldPassword = $data['oldPassword'];
 
         try {
             $this->authService->updateAuth(token: $token, id: $userID, col: 'email', oldPassword: $oldPassword, newValue: $newEmail);
-            http_response_code(response_code: 200);
-            $_SESSION['success'] = 'Email aggiornata con successo.';
+            sendResponse(statusCode: 200, type: 'success', message: CodeMessage::SUCCESS_UPDATE_EMAIL->value, location: 'login.php');
             $this->logout();
         } catch (Exception $e) {
-            $_SESSION['error'] = $e->getMessage();
-            http_response_code(response_code: 400);
-            header(header: "Location: update.php");
-            exit();
+            sendResponse(statusCode: 400, type: 'error', message: $e->getMessage(), location: 'update.php');
         }
     }
 
@@ -108,27 +74,16 @@ class AuthController
         $tokenData = $this->authMiddleware->validateToken();
         $token = $tokenData['token'];
         $userID = $tokenData['id'];
-
-        if (empty($data['oldPassword']) || empty($data['newPassword'])) {
-            $_SESSION['error'] = 'Vecchia password e nuova password sono obbligatorie.';
-            http_response_code(response_code: 400);
-            header(header: "Location: update.php");
-            exit();
-        }
-
+        if (validateRequiredFields(data: $data, requiredFields: ['oldPassword', 'newPassword'], errorMessage: CodeMessage::ERROR_PASSWORD_FIELDS->value, location: 'update.php')) return;
         $oldPassword = $data['oldPassword'];
         $newPassword = $data['newPassword'];
 
         try {
             $this->authService->updateAuth(token: $token, id: $userID, col: 'password', oldPassword: $oldPassword, newValue: $newPassword);
-            http_response_code(response_code: 200);
-            $_SESSION['success'] = 'Password aggiornata con successo.';
+            sendResponse(statusCode: 200, type: 'success', message: CodeMessage::SUCCESS_UPDATE_PASSWORD->value, location: 'login.php');
             $this->logout();
         } catch (Exception $e) {
-            $_SESSION['error'] = $e->getMessage();
-            http_response_code(response_code: 400);
-            header(header: "Location: update.php");
-            exit();
+            sendResponse(statusCode: 400, type: 'error', message: $e->getMessage(), location: 'update.php');
         }
     }
 
@@ -137,26 +92,15 @@ class AuthController
         $tokenData = $this->authMiddleware->validateToken();
         $token = $tokenData['token'];
         $userID = $tokenData['id'];
-
-        if (empty($data['password'])) {
-            $_SESSION['error'] = 'La password è obbligatoria.';
-            http_response_code(response_code: 400);
-            header(header: "Location: delete.php");
-            exit();
-        }
-
+        if (validateRequiredFields(data: $data, requiredFields: ['password'], errorMessage: CodeMessage::ERROR_DELETE_FIELDS->value, location: 'delete.php')) return;
         $password = $data['password'];
 
         try {
             $this->authService->deleteAuth(token: $token, id: $userID, password: $password);
-            http_response_code(response_code: 200);
-            $_SESSION['success'] = 'Account eliminato con successo.';
+            sendResponse(statusCode: 200, type: 'success', message: CodeMessage::SUCCESS_DELETE_ACCOUNT->value, location: 'login.php');
             $this->logout();
         } catch (Exception $e) {
-            $_SESSION['error'] = $e->getMessage();
-            http_response_code(response_code: 400);
-            header(header: "Location: delete.php");
-            exit();
+            sendResponse(statusCode: 400, type: 'error', message: $e->getMessage(), location: 'delete.php');
         }
     }
 

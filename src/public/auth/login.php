@@ -1,12 +1,9 @@
 <?php
 session_start();
 require_once __DIR__ . '/../../auth/auth.controller.php';
+require_once __DIR__ . '/../../utils/token.utils.php';
 
-$isAuthenticated = isset($_SESSION['access_token']);
-if ($isAuthenticated) {
-    header("Location: ../dashboard/index.php"); // !fare page dashboard
-    exit();
-}
+isAuthenticated();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $controller = new AuthController();

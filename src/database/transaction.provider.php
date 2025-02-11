@@ -9,22 +9,11 @@ class TransactionProvider
         $this->db = $databaseService;
     }
 
-    /**
-     * Begins a transaction.
-     *
-     * @return void
-     */
     public function beginTransaction(): void
     {
         $this->db->beginTransaction();
     }
 
-    /**
-     * Commits the current transaction.
-     *
-     * @return void
-     * @throws Exception If the commit fails.
-     */
     public function commit(): void
     {
         try {
@@ -35,11 +24,6 @@ class TransactionProvider
         }
     }
 
-    /**
-     * Rolls back the current transaction.
-     *
-     * @return void
-     */
     public function rollBack(): void
     {
         $this->db->rollBack();

@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../auth/providers/argon.provider.php';
 require_once __DIR__ . '/../../auth/auth.repository.php';
 require_once __DIR__ . '/../../auth/config/jwt-strategy.php';
 require_once __DIR__ . '/../../auth/config/jwt-payload.dto.php';
-require_once __DIR__ . '/../../utilis/regex.utilis.php';
+require_once __DIR__ . '/../../utils/regex.utils.php';
 
 
 
@@ -59,7 +59,7 @@ class AuthService
         return [
             'access_token' => $accessToken,
             'refresh_token' => $refreshToken,
-            'roles' => $auth['roles']
+            'roles' => $auth['role']
         ];
     }
 
