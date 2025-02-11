@@ -4,9 +4,9 @@ include __DIR__ . '/../../auth/config/jwt-strategy.php';
 
 class AuthMiddleware
 {
-    private JwtService $jwtService;
+    private JwtStrategy $jwtService;
 
-    public function __construct(JwtService $jwtService)
+    public function __construct(JwtStrategy $jwtService)
     {
         $this->jwtService =  $jwtService;
     }

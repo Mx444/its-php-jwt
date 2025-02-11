@@ -1,13 +1,13 @@
 <?php
 require_once __DIR__ . '/jwt-payload.interface.php';
-require_once __DIR__ . '/jwt-payload.entity.php';
+require_once __DIR__ . '/jwt-payload.dto.php';
 require_once __DIR__ . '/jwt.module.php';
 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 
-if (!class_exists(class: 'JwtService')) {
-    class JwtService
+if (!class_exists(class: 'JwtStrategy')) {
+    class JwtStrategy
     {
         private JwtModule $config;
 
@@ -58,14 +58,11 @@ if (!class_exists(class: 'JwtService')) {
             return JWT::encode(payload: $tokenPayload, key: $this->config->getSecret(), alg: 'HS256');
         }
 
-        public function validateJwt(string $jwt): array
+        public function validateJwt(string $jwt): array | null
         {
-            try {
-                $decoded = JWT::decode(jwt: $jwt, keyOrKeyArray: new Key(keyMaterial: $this->config->getSecret(), algorithm: 'HS256'));
-                return (array) $decoded;
-            } catch (Exception $e) {
-                throw new Exception(message: 'Invalid token: ' . $e->getMessage());
-            }
+
+            $decoded = JWT::decode(jwt: $jwt, keyOrKeyArray: new Key(keyMaterial: $this->config->getSecret(), algorithm: 'HS256'));
+            return (array) $decoded ?? null;
         }
 
         public function refreshAccessToken(string $refreshToken): string
