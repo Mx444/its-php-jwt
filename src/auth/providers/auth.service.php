@@ -28,6 +28,15 @@ class AuthService
         $this->authRepository = new AuthRepository(db: $this->db);
     }
 
+    public function getAuths(): array
+    {
+        try {
+            return $this->authRepository->readAll();
+        } catch (Exception $e) {
+            throw new Exception(message: "Errore nel recupero degli utenti: " . $e->getMessage());
+        }
+    }
+
     public function register(string $email, string $password): bool
     {
         validateEmail(email: $email);
@@ -91,7 +100,55 @@ class AuthService
             throw new Exception(message: "Errore nell'aggiornamento: " . $e->getMessage());
         }
     }
+    public function updateAuthRoleById($token, $id, $newRole)
+    {
+        $jwt = $this->jwtService->validateJwt(jwt: $token);
+        if (!$jwt) throw new Exception(message: "Token non valido.");
+        $auth = $this->authRepository->read(condition: 'id', value: $id);
+        if (!$auth) throw new Exception(message: "Utente non trovato.");
+        if (!in_array(needle: $newRole, haystack: ['admin', 'user'])) throw new Exception(message: "Ruolo non valido.");
+        try {
+            $this->transactionProvider->beginTransaction();
+            $this->authRepository->update(id: $id, col: 'role', value: $newRole);
+            $this->transactionProvider->commit();
+            return true;
+        } catch (Exception $e) {
+            throw new Exception(message: "Errore nell'aggiornamento del ruolo: " . $e->getMessage());
+        }
+    }
+    public function deleteAuthById(string $token, int $id)
+    {
+        $auth = $this->authRepository->read(condition: 'id', value: $id);
+        if (!$auth) throw new Exception(message: "Utente non trovato.");
+        $this->jwtService->validateJwt(jwt: $token);
+        if (!$this->jwtService->validateJwt(jwt: $token)) throw new Exception(message: "Token non valido.");
+        try {
+            $this->transactionProvider->beginTransaction();
+            $this->authRepository->delete(id: $id);
+            $this->transactionProvider->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->transactionProvider->rollBack();
+            throw new Exception(message: "Errore nell'eliminazione: " . $e->getMessage());
+        }
+    }
 
+    public function enableAuthById(string $token, int $id)
+    {
+        $auth = $this->authRepository->read(condition: 'id', value: $id);
+        if (!$auth) throw new Exception(message: "Utente non trovato.");
+        $this->jwtService->validateJwt(jwt: $token);
+        if (!$this->jwtService->validateJwt(jwt: $token)) throw new Exception(message: "Token non valido.");
+        try {
+            $this->transactionProvider->beginTransaction();
+            $this->authRepository->update(id: $id, col: 'deleted_At', value: null);
+            $this->transactionProvider->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->transactionProvider->rollBack();
+            throw new Exception(message: "Errore nell'abilitazione: " . $e->getMessage());
+        }
+    }
     public function deleteAuth(string $token, int $id, string $password): bool
     {
         $auth = $this->authRepository->read(condition: 'id', value: $id);

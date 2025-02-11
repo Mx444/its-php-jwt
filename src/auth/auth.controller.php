@@ -21,6 +21,15 @@ class AuthController
         $this->authMiddleware = new AuthMiddleware(jwtService: $this->jwtService);
     }
 
+    public function getAuths(): array
+    {
+        try {
+            if (isAdmin()) return $this->authService->getAuths();
+            return [];
+        } catch (Exception $e) {
+            sendResponse(statusCode: 400, type: 'error', message: $e->getMessage(), location: 'index.php');
+        }
+    }
     public function register(array $data): void
     {
         if (validateRequiredFields(data: $data, requiredFields: ['email', 'password'], errorMessage: CodeMessage::ERROR_REQUIRED_FIELDS->value, location: 'register.php')) return;
@@ -82,6 +91,47 @@ class AuthController
             $this->logout();
         } catch (Exception $e) {
             sendResponse(statusCode: 400, type: 'error', message: $e->getMessage(), location: 'update.php');
+        }
+    }
+
+    public function updateRoleById($data)
+    {
+        $tokenData = $this->authMiddleware->validateToken();
+        $token = $tokenData['token'];
+        if (validateRequiredFields(data: $data, requiredFields: ['id', 'newRole'], errorMessage: CodeMessage::ERROR_UPDATE_FIELDS->value, location: 'index.php')) return;
+        $id = $data['id'];
+        $newRole = $data['newRole'];
+        try {
+            $this->authService->updateAuthRoleById(token: $token, id: $id, newRole: $newRole);
+            sendResponse(statusCode: 200, type: 'success', message: '', location: './update.php');
+        } catch (Exception $e) {
+            sendResponse(statusCode: 400, type: 'error', message: $e->getMessage(), location: './update.php');
+        }
+    }
+    public function deleteAuthById($data)
+    {
+        $tokenData = $this->authMiddleware->validateToken();
+        $token = $tokenData['token'];
+        if (validateRequiredFields(data: $data, requiredFields: ['id'], errorMessage: CodeMessage::ERROR_DELETE_FIELDS->value, location: 'index.php')) return;
+        $id = $data['id'];
+        try {
+            $this->authService->deleteAuthById(token: $token, id: $id);
+            sendResponse(statusCode: 200, type: 'success', message: '', location: './update.php');
+        } catch (Exception $e) {
+            sendResponse(statusCode: 400, type: 'error', message: $e->getMessage(), location: './update.php');
+        }
+    }
+    public function enableAuthById($data)
+    {
+        $tokenData = $this->authMiddleware->validateToken();
+        $token = $tokenData['token'];
+        if (validateRequiredFields(data: $data, requiredFields: ['id'], errorMessage: CodeMessage::ERROR_DELETE_FIELDS->value, location: 'index.php')) return;
+        $id = $data['id'];
+        try {
+            $this->authService->enableAuthById(token: $token, id: $id);
+            sendResponse(statusCode: 200, type: 'success', message: '', location: './update.php');
+        } catch (Exception $e) {
+            sendResponse(statusCode: 400, type: 'error', message: $e->getMessage(), location: './update.php');
         }
     }
 
