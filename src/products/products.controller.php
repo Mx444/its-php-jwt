@@ -30,7 +30,7 @@ class ProductsController
     public function getAllProducts(): array
     {
         try {
-            if (isAdmin()) return $this->productsService->getAllProducts(bool: true);
+            if (isAdminJWT()) return $this->productsService->getAllProducts(bool: true);
             return  $this->productsService->getAllProducts(bool: 1);
         } catch (Exception $e) {
             sendResponse(statusCode: 400, type: 'error', message: $e->getMessage(), location: './index.php');

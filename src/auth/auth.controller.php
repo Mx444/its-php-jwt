@@ -24,7 +24,7 @@ class AuthController
     public function getAuths(): array
     {
         try {
-            if (isAdmin()) return $this->authService->getAuths();
+            if (isAdminJWT()) return $this->authService->getAuths();
             return [];
         } catch (Exception $e) {
             sendResponse(statusCode: 400, type: 'error', message: $e->getMessage(), location: 'index.php');

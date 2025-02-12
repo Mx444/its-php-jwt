@@ -1,8 +1,15 @@
 <?php
-function isAdmin()
+require_once __DIR__ . '/../auth/config/jwt-strategy.php';
+
+function isAdminJWT(): bool
 {
-    if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
-        return true;
+    $jwt = new JwtStrategy();
+    $token = isset($_SESSION['access_token']) ? $_SESSION['access_token'] : null;
+    if ($token) {
+        $decoded = $jwt->validateJwt(jwt: $token);
+        if ($decoded['role'] === 'admin') {
+            return true;
+        }
     }
     return false;
 }

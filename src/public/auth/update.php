@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../utils/token.utils.php';
 require_once __DIR__ . '/../../utils/role.utils.php';
 
 isNotAuthenticated();
-$role = isAdmin();
+$role = isAdminJWT();
 $authController = new AuthController();
 $users = $authController->getAuths();
 

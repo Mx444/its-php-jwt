@@ -7,7 +7,7 @@ require_once __DIR__ . '/../products/products.controller.php';
 require_once __DIR__ . '/../auth/auth.controller.php';
 
 isNotAuthenticated();
-$role = isAdmin();
+$role = isAdminJWT();
 $controller = new ProductsController();
 $products = $controller->getAllProducts();
 $authController = new AuthController();
