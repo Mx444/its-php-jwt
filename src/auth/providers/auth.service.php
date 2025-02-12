@@ -112,6 +112,7 @@ class AuthService
             $this->transactionProvider->commit();
             return true;
         } catch (Exception $e) {
+            $this->transactionProvider->rollBack();
             throw new Exception(message: "Errore nell'aggiornamento del ruolo: " . $e->getMessage());
         }
     }

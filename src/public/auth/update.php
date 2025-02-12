@@ -1,5 +1,4 @@
 <?php
-session_start();
 require_once __DIR__ . '/../../auth/auth.controller.php';
 require_once __DIR__ . '/../../utils/token.utils.php';
 require_once __DIR__ . '/../../utils/role.utils.php';
@@ -9,7 +8,6 @@ $role = isAdminJWT();
 $authController = new AuthController();
 $users = $authController->getAuths();
 
-// Gestione delle azioni
 $actions = [
     'updateEmail' => ['newEmail', 'oldPassword'],
     'updatePassword' => ['oldPassword', 'newPassword'],

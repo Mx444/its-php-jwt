@@ -1,5 +1,5 @@
 <?php
-
+session_start();
 require_once __DIR__ . '/../auth/providers/auth.service.php';
 require_once __DIR__ . '/../auth/config/jwt-strategy.php';
 require_once __DIR__ . '/../auth/config/jwt.middleware.php';
@@ -54,7 +54,7 @@ class AuthController
             $auth = $this->authService->login(email: $email, password: $password);
             $_SESSION['access_token'] = $auth['access_token'];
             $_SESSION['refresh_token'] = $auth['refresh_token'];
-            $_SESSION['role'] = $auth['role']; //!! DA AGGIUNGERE A JWT
+            $_SESSION['role'] = $auth['role'];
             sendResponse(statusCode: 200, type: 'success', message: CodeMessage::SUCCESS_LOGIN->value, location: '../index.php');
         } catch (Exception $e) {
             sendResponse(statusCode: 400, type: 'error', message: $e->getMessage(), location: 'login.php');

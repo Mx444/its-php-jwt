@@ -28,12 +28,13 @@ class ProductsService
         }
     }
 
-    public function addProduct(string $name, string $description, float $price): void
+    public function addProduct(string $name, string $description, float $price): bool
     {
         try {
             $this->transactionProvider->beginTransaction();
             $this->productsRepository->create(name: $name, description: $description, price: $price);
             $this->transactionProvider->commit();
+            return true;
         } catch (Exception $e) {
             $this->transactionProvider->rollBack();
             throw new Exception(message: "Errore nella creazione del prodotto: " . $e->getMessage());

@@ -1,5 +1,4 @@
 <?php
-session_start();
 require_once __DIR__ . '/../utils/token.utils.php';
 require_once __DIR__ . '/../utils/role.utils.php';
 require_once __DIR__ . '/../products/products.controller.php';
@@ -72,12 +71,12 @@ foreach ($actions as $action => $fields) {
     </nav>
     <div class="container mt-4">
         <h1 class="text-center mb-4">Gestione Prodotti</h1>
-        <?php if (isset($_GET['success'])) : ?>
-            <div class="alert alert-success"><?= htmlspecialchars($_GET['success']) ?></div>
+        <?php if (isset($_SESSION['success'])) : ?>
+            <div class="alert alert-success"><?= htmlspecialchars($_SESSION['success']) ?></div>
         <?php endif; ?>
 
-        <?php if (isset($_GET['error'])) : ?>
-            <div class="alert alert-danger"><?= htmlspecialchars($_GET['error']) ?></div>
+        <?php if (isset($_SESSION['error'])) : ?>
+            <div class="alert alert-danger"><?= htmlspecialchars($_SESSION['error']) ?></div>
         <?php endif; ?>
         <?php if ($role) : ?>
             <form method="post" class="mb-4 p-3 bg-light rounded">

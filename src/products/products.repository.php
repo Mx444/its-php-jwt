@@ -14,7 +14,7 @@ class ProductsRepository
         $query = "INSERT INTO products (name, description, price) VALUES (:name, :description, :price)";
         $stmt = $this->db->prepare(query: $query);
         $stmt->execute(params: ['name' => $name, 'description' => $description, 'price' => $price]);
-        return (int) $this->db->lastInsertId() ?: null;
+        return $this->db->lastInsertId() ?: null;
     }
     public function read($id): mixed
     {

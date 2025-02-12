@@ -1,5 +1,4 @@
 <?php
-
 require_once __DIR__ . '/../products/providers/products.service.php';
 require_once __DIR__ . '/../utils/response.utils.php';
 require_once __DIR__ . '/../utils/code-message.utils.php';
@@ -15,7 +14,6 @@ class ProductsController
 
     public function addProduct(array $data): void
     {
-        if (validateRequiredFields(data: $data, requiredFields: ['name', 'description', 'price'], errorMessage: 'Nome, descrizione e prezzo sono obbligatori.', location: './index.php')) return;
         $name = $data['name'];
         $description = $data['description'];
         $price = $data['price'];
