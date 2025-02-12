@@ -21,7 +21,7 @@ class ProductsController
         $price = $data['price'];
         try {
             $this->productsService->addProduct(name: $name, description: $description, price: $price);
-            sendResponse(statusCode: 201, type: 'success', message: 'Prodotto aggiunto con successo.', location: './index.php');
+            sendResponse(statusCode: 201, type: 'success', message: 'Prodotto aggiunto con successo.', location: '/php-auth/src/public/index.php');
         } catch (Exception $e) {
             sendResponse(statusCode: 400, type: 'error', message: $e->getMessage(), location: './index.php');
         }
