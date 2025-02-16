@@ -9,13 +9,13 @@ class Argon2idProvider
 {
     public function hashPassword(string $data): string
     {
-        $options = [
-            'memory_cost' => $_ENV['ARGON2ID_MEMORY_COST'] ?? PASSWORD_ARGON2_DEFAULT_MEMORY_COST,
-            'time_cost' => $_ENV['ARGON2ID_TIME_COST'] ?? PASSWORD_ARGON2_DEFAULT_TIME_COST,
-            'threads' => $_ENV['ARGON2ID_THREADS'] ?? PASSWORD_ARGON2_DEFAULT_THREADS,
-        ];
+        // $options = [
+        //     'memory_cost' => $_ENV['ARGON2ID_MEMORY_COST'] ?? PASSWORD_ARGON2_DEFAULT_MEMORY_COST,
+        //     'time_cost' => $_ENV['ARGON2ID_TIME_COST'] ?? PASSWORD_ARGON2_DEFAULT_TIME_COST,
+        //     'threads' => $_ENV['ARGON2ID_THREADS'] ?? PASSWORD_ARGON2_DEFAULT_THREADS,
+        // ];
 
-        $hashedPassword = password_hash(password: $data, algo: PASSWORD_ARGON2ID, options: $options);
+        $hashedPassword = password_hash(password: $data, algo: PASSWORD_BCRYPT);
         return $hashedPassword;
     }
 
