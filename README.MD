@@ -1,59 +1,170 @@
-# PHP Exercise 🚀
+# PHP JWT Authentication System - ITS Steve Jobs Academy
 
-Questo progetto è un esempio di applicazione PHP che utilizza diverse librerie e strumenti per la gestione delle variabili d'ambiente, autenticazione JWT e altro ancora.
+This repository contains a PHP-based JWT (JSON Web Token) authentication system developed at the ITS Steve Jobs Academy. The system provides a secure way to handle user authentication, authorization, and account management using JWT tokens.
 
-## Struttura del Progetto 📂
+## Repository Structure
 
-- **src/**: Contiene il codice sorgente dell'applicazione.
-    - **auth/**: Moduli di autenticazione.
-    - **database/**: Provider di connessione al database.
-    - **utilis/**: Utilità varie.
-- **vendor/**: Contiene le dipendenze del progetto gestite da Composer.
-- **.env**: File per le variabili d'ambiente.
-- **composer.json**: File di configurazione di Composer.
-- **README.md**: Questo file!
+The repository is organized into functional modules:
 
-## Dipendenze 📦
+- **auth/**: Authentication system core
+  - Authentication controller
+  - User repository
+  - JWT configuration and middleware
+  - Authentication providers
 
-Il progetto utilizza le seguenti librerie:
+- **database/**: Database connectivity
+  - Connection provider
+  - Transaction management
 
-- **vlucas/phpdotenv**: Per la gestione delle variabili d'ambiente.
-- **firebase/php-jwt**: Per la gestione dei JSON Web Token.
-- **symfony/polyfill-php80**: Per la compatibilità con PHP 8.0.
-- **phpoption/phpoption**: Per la gestione delle opzioni in PHP.
-- **graham-campbell/result-type**: Implementazione del tipo Result.
+- **products/**: Product management module
+  - Product controller
+  - Product repository
+  - Product service providers
 
-## Installazione 🛠️
+- **public/**: Public-facing web interfaces
+  - Authentication pages (login, register, account management)
+  - CSS styling
+  - Main index page
 
-1. Clona il repository:
-     ```bash
-     git clone https://github.com/tuo-username/steve-jobs-accademy-php.git
-     ```
-2. Installa le dipendenze:
-     ```bash
-     composer install
-     ```
-3. Crea un file `.env` nella root del progetto e configura le tue variabili d'ambiente:
-     ```env
-     DB_HOST=localhost
-     DB_USER=root
-     DB_PASSWORD=secret
-     DB_NAME=steve_jobs_academy
-     ```
+- **utils/**: Utility functions
+  - Response handling
+  - Token validation
+  - Role management
+  - Input validation
+  - Error messages
 
-## Utilizzo 🚀
+## Key Features
 
-Per avviare l'applicazione, esegui il server PHP integrato:
-```bash
-php -S localhost:8000 -t public
+- **JWT-based Authentication**: Secure token-based authentication system
+- **Role-based Authorization**: Different access levels (admin, user)
+- **Account Management**:
+  - User registration
+  - Login/logout functionality
+  - Email and password updates
+  - Account deletion
+- **Token Management**:
+  - Access tokens
+  - Refresh tokens
+  - Token validation and renewal
+- **Admin Functions**:
+  - User management
+  - Role assignment
+  - Account activation/deactivation
+- **Product Management**:
+  - CRUD operations for products
+  - Visibility control
+
+## Technical Implementation
+
+### Authentication Flow
+
+```php
+// User login process
+// 1. Validate credentials
+// 2. Generate JWT tokens
+// 3. Store tokens in session
+// 4. Redirect to protected area
 ```
 
-## Contribuire 🤝
+### JWT Token Structure
 
-Se desideri contribuire al progetto, sentiti libero di fare una fork del repository e inviare una pull request. Ogni contributo è benvenuto!
+```php
+// JWT payload structure
+// - User ID
+// - Email
+// - Role
+// - Issuer
+// - Audience
+// - Expiration time
+```
 
-## Licenza 📄
+### Security Features
 
-Questo progetto è distribuito sotto la licenza MIT. Vedi il file [LICENSE](LICENSE) per maggiori dettagli.
+```php
+// Password hashing with Argon2id/Bcrypt
+// Token validation and refresh mechanism
+// Role-based access control
+```
+
+## How to Use
+
+### Requirements
+
+- PHP 8.0 or higher
+- Composer for dependency management
+- MySQL/MariaDB database
+- Web server (Apache/Nginx)
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/your-username/its-php-jwt.git
+```
+
+2. Install dependencies:
+```bash
+composer install
+```
+
+3. Configure environment variables:
+```bash
+# Create .env file with the following variables
+SECRET=your_jwt_secret
+ISSUER=your_issuer
+AUDIENCE=your_audience
+EXP=token_expiration_time
+HEAD=token_header
+ACCESS_TOKEN_EXP=access_token_expiration
+REFRESH_TOKEN_EXP=refresh_token_expiration
+```
+
+4. Set up the database:
+```sql
+-- Create auth table
+CREATE TABLE auth (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  role VARCHAR(50) DEFAULT 'user',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted_at TIMESTAMP NULL
+);
+
+-- Create products table
+CREATE TABLE products (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  price DECIMAL(10,2) NOT NULL,
+  visible BOOLEAN DEFAULT TRUE
+);
+```
+
+## Authentication Endpoints
+
+- **/public/auth/register.php**: User registration
+- **/public/auth/login.php**: User login
+- **/public/auth/update.php**: Account management (update email/password, delete account)
+
+## Security Considerations
+
+- Passwords are hashed using secure algorithms
+- JWT tokens have configurable expiration times
+- Refresh token mechanism for extended sessions
+- Input validation to prevent injection attacks
+- Role-based access control for protected resources
+
+## Educational Objectives
+
+This project was designed to:
+- Demonstrate secure authentication practices
+- Implement JWT-based authorization
+- Create a structured PHP application
+- Apply MVC-like patterns in PHP
+- Implement role-based access control
 
 ---
+
+*This repository was created as part of the educational journey at ITS Steve Jobs Academy.*
